@@ -1,0 +1,7 @@
+colorzero==2.0
+gpiozero==2.0.1
+lgpio==0.2.2.0
+paho-mqtt==2.1.0
+pigpio==1.78
+RPi.GPIO==0.7.1
+types-paho-mqtt==1.6.0.20240321
