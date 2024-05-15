@@ -2,9 +2,9 @@ import paho.mqtt.client as mqtt
 import time
 import gpiozero
 from gpiozero import LED, Button, OutputDevice
-import adafruit_dht
 import board
 
+import adafruit_dht
 LED_PIN = 27
 BUTTON_PIN = 22
 RELAY_PIN = 23
@@ -40,11 +40,12 @@ def on_unsubscribe(client, userdata, mid, reason_code_list, properties):
 
 def on_message(client, userdata, message):
     # userdata is the structure we choose to provide, here it's a list()
-    userdata.append(message.payload)
+    #userdata.append(message.payload)
     # We only want to process 10 messages
-    if len(userdata) >= 10:
-        client.unsubscribe("/paho/test/topic")
-
+    #if len(userdata) >= 10:
+    #    client.unsubscribe("/paho/test/topic")
+    msg=message.payload.decode("utf-8")
+    print("Received ",msg," on topic ", message.topic)
 
 def on_connect(client, userdata, flags, reason_code, properties):
     if reason_code.is_failure:
