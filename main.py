@@ -36,7 +36,7 @@ PIN_DHT = board.D17
 water_sensor = Button(PIN_WATER_SENSOR)
 relay = OutputDevice(PIN_RELAY, active_high=True, initial_value=False)
 
-TESTING_FACTOR = 0.2
+TESTING_FACTOR = 0.2  # Factor to speed up the testing process
 # watering parameters
 MAX_MOISTURE_READINGS = 5   # Number of moisture readings to store for each plant and calculate avg from
 WATER_COOLDOWN = 300 * TESTING_FACTOR   # Time in seconds to wait before watering the same plant again
@@ -48,8 +48,10 @@ MIN_TEMP_THRESHOLD = 10  # Minimum temperature for watering
 MAIN_ITERATION_PERIOD = 60 * TESTING_FACTOR  # Time in seconds to wait between main loop iterations
 
 
-plant_dict = {} # dictionary to store plant data: moisture, last_watered, target_moisture, last_update
-registered_topics = []
+plant_dict = {}  # dictionary to store plant data: moisture, last_watered, target_moisture, last_update
+#  shape: {"plant_id": {"moisture": [], "last_watered": 0, "target_moisture": 0, "last_update": date}}
+
+subscribed_plant_topics = []  # list of topics to which the script is subscribed
 
 site_state = {"id": RASPBERRY_ID, "temperature": 25, "humidity": None, "rain": False, "water_level": 1, "last_update": time.time()}
 
@@ -66,6 +68,10 @@ def on_subscribe(client, userdata, mid, reason_code_list, properties):
 def on_message(client: mqtt.Client, userdata, mes):
     print("message received", mes.payload.decode("utf-8"), "on", mes.topic, mes.mid)
     msg = mes.payload.decode("utf-8")
+
+    # TODO: restructure the mqtt logic, since esp32 can send json, we can have a fixed topic for all moisture
+    #  readings, no need to register
+
     if mes.topic == TOPIC_REGISTER:
         print("received register request with id:", msg)
         try:
@@ -81,14 +87,14 @@ def on_message(client: mqtt.Client, userdata, mes):
             # notify the esp32 with the topic to publish on
                 # subscribe to the topic
                 client.subscribe(plant_topic, 2)
-                registered_topics.append(plant_topic)
+                subscribed_plant_topics.append(plant_topic)
             client.publish(TOPIC_ESP_FEEDBACK, plant_topic, 2)
 
         except ValueError:
             print("Invalid plant ID")
 
     # if already registered, update the moisture reading
-    elif mes.topic in registered_topics:
+    elif mes.topic in subscribed_plant_topics:
         try:
             data = json.loads(msg)
             p_id = int(data["id"])
@@ -140,7 +146,7 @@ def water_plant(plant_id):
 
 
 def check_rain():
-    # TODO
+    # TODO: get weather data from API
     return False
 
 
@@ -154,7 +160,6 @@ def on_water_sensor_low():
     print("Water sensor low")
     site_state["water_level"] = 1
     # TODO
-
 
 
 def main_loop():
@@ -194,12 +199,14 @@ def main_loop():
         # ----------------------- Publish Site State -----------------------
         client2.publish(TOPIC_PUBLISH_UPDATES, json.dumps(site_state), 2)
         client2.publish(TOPIC_PUBLISH_UPDATES, json.dumps(plant_dict), 2)
-        json_list = []
 
+        # Mqtt with API stopped working, so we are using https requests to send the data
+
+        json_list = []
         for plant_id, plant_data in plant_dict.items():
             # Extract moisture value
             if plant_data["moisture"]:
-                moist = plant_data["moisture"][-1]
+                moist = plant_data["moisture"][-1] # Get the last moisture reading
             else:
                 moist = 0.0
             # moisture = plant_data["moisture"]
@@ -207,13 +214,12 @@ def main_loop():
             # Create a new dictionary with desired properties
             plant_json = {
                 "moisture": moist,
-                "light": 0,  # Set light to 0 (assuming missing data)
+                "light": 0,  # Set light to 0 (api expects data)
                 "plantId": plant_id
             }
 
             json_list.append(plant_json)
 
-        # plantss = {"plant_id": {"moisture": 0, "last_watered": 0, "target_moisture": 0, "last_update": 0}}
         print(requests.post("https://iotproject1api20240501175507.azurewebsites.net/api/Plants/stats",
                       json=json_list,
                       headers={"Content-Type": "application/json"}, ))
