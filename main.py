@@ -201,6 +201,7 @@ def main_loop():
 site_state["water_level"] = water_sensor.value*-1+1
 water_sensor.when_activated = on_water_sensor_high
 water_sensor.when_deactivated = on_water_sensor_low
+water_sensor.when_held = on_water_sensor_high
 
 sensor_dht = adafruit_dht.DHT11(PIN_DHT)
 
