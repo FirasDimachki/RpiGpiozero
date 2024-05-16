@@ -33,15 +33,16 @@ PIN_DHT = board.D17
 water_sensor = Button(PIN_WATER_SENSOR)
 relay = OutputDevice(PIN_RELAY, active_high=True, initial_value=False)
 
+TESTING_FACTOR = 0.2
 # watering parameters
 MAX_MOISTURE_READINGS = 5   # Number of moisture readings to store for each plant and calculate avg from
-WATER_COOLDOWN = 300    # Time in seconds to wait before watering the same plant again
-MOISTURE_OUTDATED_THRESHOLD = 200  # Time in seconds after which the moisture reading is considered outdated
-WATER_PUMP_BURST_TIME = 5  # Time in seconds to run the water pump
+WATER_COOLDOWN = 300 * TESTING_FACTOR   # Time in seconds to wait before watering the same plant again
+MOISTURE_OUTDATED_THRESHOLD = 200 * TESTING_FACTOR # Time in seconds after which the moisture reading is considered outdated
+WATER_PUMP_BURST_TIME = 5 # Time in seconds to run the water pump
 MIN_TEMP_THRESHOLD = 10  # Minimum temperature for watering
 
 
-MAIN_ITERATION_PERIOD = 60  # Time in seconds to wait between main loop iterations
+MAIN_ITERATION_PERIOD = 60 * TESTING_FACTOR  # Time in seconds to wait between main loop iterations
 
 
 plant_dict = {} # dictionary to store plant data: moisture, last_watered, target_moisture, last_update
