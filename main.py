@@ -6,6 +6,8 @@ import gpiozero
 from gpiozero import LED, Button, OutputDevice
 import board
 import adafruit_dht
+import requests
+
 
 RASPBERRY_ID = 4 # ID of the site
 
@@ -18,6 +20,7 @@ REMOTE_BROKER_PORT = 1883
 
 TOPIC_REGISTER = "/plant/register"
 TOPIC_PUBLISH_UPDATES = "/UA/iotProj/plants/"
+TOPIC_PUBLISH_SITE = "/UA/iotProj/sites/"
 TOPIC_RECEIVE_UPDATES = "/UA/iotProj/plants/edit"
 TOPIC_ESP_FEEDBACK = "/plant/register/response"
 TOPIC_MOISTURE_TEMPLATE = "/plant/{id}/moisture"
@@ -190,6 +193,10 @@ def main_loop():
 
         # ----------------------- Publish Site State -----------------------
         client2.publish(TOPIC_PUBLISH_UPDATES, json.dumps(site_state), 2)
+        client2.publish(TOPIC_PUBLISH_UPDATES, json.dumps(plant_dict), 2)
+        print(requests.post("https://iotproject1api20240501175507.azurewebsites.net/Plants/stats",
+                      json=json.dumps(site_state),
+                      headers={"Content-Type": "application/json"}, ))
 
         print("site state:", site_state)
 
