@@ -194,9 +194,30 @@ def main_loop():
         # ----------------------- Publish Site State -----------------------
         client2.publish(TOPIC_PUBLISH_UPDATES, json.dumps(site_state), 2)
         client2.publish(TOPIC_PUBLISH_UPDATES, json.dumps(plant_dict), 2)
-        print(requests.post("https://iotproject1api20240501175507.azurewebsites.net/Plants/stats",
-                      json=json.dumps(site_state),
+        json_list = []
+
+        for plant_id, plant_data in plant_dict.items():
+            # Extract moisture value
+            if plant_data["moisture"]:
+                moist = plant_data["moisture"][-1]
+            else:
+                moist = 0.0
+            # moisture = plant_data["moisture"]
+
+            # Create a new dictionary with desired properties
+            plant_json = {
+                "moisture": moist,
+                "light": 0,  # Set light to 0 (assuming missing data)
+                "plantId": plant_id
+            }
+
+            json_list.append(plant_json)
+
+        # plantss = {"plant_id": {"moisture": 0, "last_watered": 0, "target_moisture": 0, "last_update": 0}}
+        print(requests.post("https://iotproject1api20240501175507.azurewebsites.net/api/Plants/stats",
+                      json=json_list,
                       headers={"Content-Type": "application/json"}, ))
+
 
         print("site state:", site_state)
 
