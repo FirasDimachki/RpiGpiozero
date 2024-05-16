@@ -1,3 +1,18 @@
+'''
+
+This was used to test a checklist of packages that were installed on the Raspberry Pi.
+
+Not to be used as part of the project
+
+'''
+
+
+
+
+
+
+
+
 import paho.mqtt.client as mqtt
 import time
 import gpiozero

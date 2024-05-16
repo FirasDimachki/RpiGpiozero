@@ -1,0 +1,20 @@
+$ cd <project directory>
+$ python3 -m venv <my v env name(path)>
+$ source <my v env name(path)>/bin/activate
+
+to test:
+	$ which python3
+now you are in the new virtual environment, pip should be clean
+
+
+Intall libraries:
+
+$ python3 -m pip install <package>
+
+Export dependencies list:
+$ python3 -m pip freeze
+
+
+#------------------------------------
+to set up a new environment with all required packages
+Run: $ python3 -m pip install -r requirements.txt

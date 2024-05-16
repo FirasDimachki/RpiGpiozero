@@ -1,5 +1,6 @@
-import json
 
+
+import json
 import paho.mqtt.client as mqtt
 import time
 import gpiozero
@@ -9,7 +10,7 @@ import adafruit_dht
 import requests
 
 
-RASPBERRY_ID = 4 # ID of the site
+RASPBERRY_ID = 4  # ID of the site
 
 
 LOCAL_BROKER = "0.0.0.0"
@@ -223,6 +224,9 @@ def main_loop():
         print(requests.post("https://iotproject1api20240501175507.azurewebsites.net/api/Plants/stats",
                       json=json_list,
                       headers={"Content-Type": "application/json"}, ))
+        # print(requests.post("https://iotproject1api20240501175507.azurewebsites.net/api/PlantSites/stats",
+        #               json=json.dumps(site_state),
+        #               headers={"Content-Type": "application/json"}, ))
 
 
         print("site state:", site_state)
