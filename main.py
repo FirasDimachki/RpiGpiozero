@@ -214,7 +214,7 @@ def main_loop():
             json_list.append(plant_json)
 
         # plantss = {"plant_id": {"moisture": 0, "last_watered": 0, "target_moisture": 0, "last_update": 0}}
-        print(requests.post("https://iotproject1api20240501175507.azurewebsites.net/Plants/stats",
+        print(requests.post("https://iotproject1api20240501175507.azurewebsites.net/api/Plants/stats",
                       json=json_list,
                       headers={"Content-Type": "application/json"}, ))
 
