@@ -195,6 +195,7 @@ def main_loop():
 
 # Start of main script
 # water level callbacks
+site_state["water_level"] = water_sensor.value
 water_sensor.when_activated = on_water_sensor_high
 water_sensor.when_deactivated = on_water_sensor_low
 

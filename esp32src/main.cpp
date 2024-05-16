@@ -28,7 +28,7 @@ int plant_id = PLANT_ID;
 const char broker[] = BROKER;
 int port = BROKER_PORT;
 // const char topic[]  = MOIST_TOPIC;
-String topic = "/plant/2/moisture";
+String topic = "/plant/1/moisture";
 
 const char regist_topic[] = REGISTER_TOPIC;
 String regist_feedback_topic = REGISTER_FEEDBACK_TOPIC;
@@ -44,6 +44,8 @@ MqttClient mqttClient(wifiClient);
 
 int count = 0;
 void onMqttMessage(int messageSize);
+ // Flag to indicate successful registration
+bool registered = false;
 
 void setup() {
   // put your setup code here, to run once:
@@ -67,15 +69,15 @@ void setup() {
   }
   if (tries <= 0){
     Serial.println("Failed to connect to the network");
-    
+
   } else {
     Serial.println("You're connected to the network");
     Serial.print("Local ESP32 IP: ");
     Serial.println(WiFi.localIP());
   }
- 
 
- //--------------------------------- MQTT ------------------------------- 
+
+ //--------------------------------- MQTT -------------------------------
   Serial.print("Attempting to connect to the MQTT broker: ");
   Serial.println(broker);
 
@@ -93,12 +95,23 @@ void setup() {
   mqttClient.subscribe(regist_feedback_topic, 2);
   mqttClient.onMessage(onMqttMessage);
 
+  // // publish register request
+  // mqttClient.beginMessage(regist_topic);
+  // mqttClient.print(plant_id);
+  // mqttClient.endMessage();
+
+
+
+  while (!registered) {
   // publish register request
-  mqttClient.beginMessage(regist_topic);
-  mqttClient.print(plant_id);
-  mqttClient.endMessage();
-
-
+    mqttClient.beginMessage(regist_topic);
+    mqttClient.print(plant_id);
+    mqttClient.endMessage();
+    Serial.println("Waiting for registration confirmation...");
+    mqttClient.poll(); // Check for incoming messages
+    yield(); // Yield control to other tasks
+    delay(3000);
+  }
 
   // ------------------------------- SENSOR ---------------------------
   pinMode(MOIST_SENS, INPUT);
@@ -123,7 +136,7 @@ void loop() {
   Serial.println("Looped again - ");
   mqttClient.poll();
 
-  
+
   unsigned long currentMillis = millis();
 
   // Read sensor
@@ -131,7 +144,7 @@ void loop() {
   Serial.print("Moisture: ");
   moist_volt = (1-moist_volt/MAX_MOISTURE)*100;
   Serial.println(moist_volt);
-  
+
   // this if is for future code scalability (in case we need to add more logic below it)
   if (currentMillis - previousMillis >= interval) {
     // save the last time a message was sent
@@ -157,7 +170,7 @@ void loop() {
 
     count++;
   }
-  
+
   // Blink led on board
   delay(1000);
   digitalWrite(LED_BUILTIN, LOW);
@@ -166,7 +179,7 @@ void loop() {
   // wait interval before reading and publishing again
   delay((interval>1000)?interval-1000: interval);
   digitalWrite(LED_BUILTIN, HIGH);
-  
+
 
 }
 
@@ -186,6 +199,7 @@ void onMqttMessage(int messageSize) {
     topic = message;
     Serial.println("Message content (registration): " + message);
     mqttClient.unsubscribe(regist_feedback_topic);
+    registered = true;
     // Parse the registration message (if needed)
     // Update variables or perform actions based on the registration message
   }
