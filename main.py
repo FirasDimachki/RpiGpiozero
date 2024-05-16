@@ -181,9 +181,12 @@ def main_loop():
                         avg_moisture = sum(data["moisture"]) / len(data["moisture"])
                         if avg_moisture < data["target_moisture"]:
 
-                            print(f"Plant {plant_id} needs watering. Activating pump...")
-                            water_plant(plant_id)
-                            data[KEY_LAST_WATERED] = time.time()
+                            if site_state["water_level"] == 1:
+                                print(f"Plant {plant_id} needs watering. Activating pump...")
+                                water_plant(plant_id)
+                                data[KEY_LAST_WATERED] = time.time()
+                            else:
+                                print("Water level too low. Cannot water plants. Refill")
 
         # ----------------------- Publish Site State -----------------------
         client2.publish(TOPIC_PUBLISH_UPDATES, json.dumps(site_state), 2)
