@@ -79,11 +79,11 @@ void setup() {
   Serial.print("Attempting to connect to the MQTT broker: ");
   Serial.println(broker);
 
-  if (!mqttClient.connect(broker, port)) {
+  while (!mqttClient.connect(broker, port)) {
     Serial.print("MQTT connection failed! Error code = ");
     Serial.println(mqttClient.connectError());
 
-    while (1);
+    delay(5000);
   }
 
   Serial.println("You're connected to the MQTT broker!");
@@ -97,6 +97,8 @@ void setup() {
   mqttClient.beginMessage(regist_topic);
   mqttClient.print(plant_id);
   mqttClient.endMessage();
+
+
 
   // ------------------------------- SENSOR ---------------------------
   pinMode(MOIST_SENS, INPUT);

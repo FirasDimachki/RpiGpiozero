@@ -25,7 +25,7 @@ TOPIC_MOISTURE_TEMPLATE = "/plant/{id}/moisture"
 KEY_LAST_WATERED = "last_watered"
 
 # LED_PIN = 27
-PIN_WATER_SENSOR = 22
+PIN_WATER_SENSOR = 22   #
 PIN_RELAY = 23
 PIN_DHT = board.D17
 
@@ -186,6 +186,8 @@ def main_loop():
 
         # ----------------------- Publish Site State -----------------------
         client2.publish(TOPIC_PUBLISH_UPDATES, json.dumps(site_state), 2)
+
+        print("site state:", site_state)
 
         time.sleep(MAIN_ITERATION_PERIOD)
 
