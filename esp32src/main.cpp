@@ -15,6 +15,7 @@ int LED_BUILTIN = 2;
 int MOIST_SENS = 35; 
 double moist_volt; // init value
 double  MAX_MOISTURE = 4100;
+double CORRECTION_FACTOR = 1.6;
 
 // #define DHTPIN 4     // Digital pin connected to the DHT sensor
 // #define DHTTYPE DHT11   // DHT 11
@@ -142,7 +143,7 @@ void loop() {
   // Read sensor
   moist_volt = analogRead(MOIST_SENS);
   Serial.print("Moisture: ");
-  moist_volt = (1-moist_volt/MAX_MOISTURE)*100;
+  moist_volt = std::min(100.0, (1-moist_volt/MAX_MOISTURE)*100*CORRECTION_FACTOR);
   Serial.println(moist_volt);
 
   // this if is for future code scalability (in case we need to add more logic below it)
