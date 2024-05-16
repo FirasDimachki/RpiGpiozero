@@ -67,6 +67,7 @@ def on_message(client: mqtt.Client, userdata, mes):
         print("received register request with id:", msg)
         try:
             plant_id = int(msg)
+            plant_topic = TOPIC_MOISTURE_TEMPLATE.format(id=plant_id)
             if plant_id not in plant_dict.keys():
                 plant_dict[plant_id] = {"moisture": [], KEY_LAST_WATERED: None,
                                         "target_moisture": 60, "last_update": None}
@@ -74,12 +75,11 @@ def on_message(client: mqtt.Client, userdata, mes):
                 print(f"Registered new plant with ID: {plant_id}")
 
                 # create a topic for the plant
-                plant_topic = TOPIC_MOISTURE_TEMPLATE.format(id=plant_id)
-                # notify the esp32 with the topic to publish on
-                client.publish(TOPIC_ESP_FEEDBACK, plant_topic, 2)
+            # notify the esp32 with the topic to publish on
                 # subscribe to the topic
                 client.subscribe(plant_topic, 2)
                 registered_topics.append(plant_topic)
+            client.publish(TOPIC_ESP_FEEDBACK, plant_topic, 2)
 
         except ValueError:
             print("Invalid plant ID")
