@@ -143,13 +143,13 @@ def check_rain():
 
 def on_water_sensor_high():
     print("Water sensor high")
-    site_state["water_level"] = 1
+    site_state["water_level"] = 0
     # TODO
 
 
 def on_water_sensor_low():
     print("Water sensor low")
-    site_state["water_level"] = 0
+    site_state["water_level"] = 1
     # TODO
 
 
@@ -195,7 +195,7 @@ def main_loop():
 
 # Start of main script
 # water level callbacks
-site_state["water_level"] = water_sensor.value
+site_state["water_level"] = water_sensor.value*-1+1
 water_sensor.when_activated = on_water_sensor_high
 water_sensor.when_deactivated = on_water_sensor_low
 
