@@ -48,7 +48,7 @@ MAIN_ITERATION_PERIOD = 60 * TESTING_FACTOR  # Time in seconds to wait between m
 plant_dict = {} # dictionary to store plant data: moisture, last_watered, target_moisture, last_update
 registered_topics = []
 
-site_state = {"id": RASPBERRY_ID, "temperature": None, "humidity": None, "rain": False, "water_level": 0, "last_update": time.time()}
+site_state = {"id": RASPBERRY_ID, "temperature": 25, "humidity": None, "rain": False, "water_level": 1, "last_update": time.time()}
 
 
 def on_subscribe(client, userdata, mid, reason_code_list, properties):
@@ -174,7 +174,7 @@ def main_loop():
 
                     # if the plant has not been watered in the last WATER_COOLDOWN seconds and the moisture reading
                     # is not outdated
-                    if time.time() - data["last_update"] < MOISTURE_OUTDATED_THRESHOLD \
+                    if data["last_update"] is not None and time.time() - data["last_update"] < MOISTURE_OUTDATED_THRESHOLD \
                             and (data[KEY_LAST_WATERED] is None or time.time() - data[KEY_LAST_WATERED] > WATER_COOLDOWN):
 
                         # if the average moisture is below the target, water the plant
